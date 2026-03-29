@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { uploadNewsletter, deleteNewsletter } from '@/app/actions/admin-newsletters'
+import UploadForm from './UploadForm'
 
 export const dynamic = 'force-dynamic'
 
@@ -45,68 +46,7 @@ export default async function AdminNewslettersPage() {
               Upload Publication
             </h3>
             
-            <form action={uploadNewsletter} className="space-y-5">
-              
-              <div>
-                <label className="block text-sm font-bold text-stone-700 mb-1">Title *</label>
-                <input 
-                  type="text" 
-                  name="title" 
-                  required 
-                  placeholder="e.g. Summer Edition 2026"
-                  className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition-all"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-bold text-stone-700 mb-1">Month *</label>
-                  <select 
-                    name="month" 
-                    required
-                    className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition-all text-stone-700"
-                  >
-                    {MONTHS.map(m => (
-                      <option key={m.val} value={m.val}>{m.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-stone-700 mb-1">Year *</label>
-                  <input 
-                    type="number" 
-                    name="year" 
-                    required 
-                    defaultValue={new Date().getFullYear()}
-                    className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition-all"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-stone-700 mb-1">PDF File *</label>
-                <input 
-                  type="file" 
-                  name="file" 
-                  accept="application/pdf"
-                  required
-                  className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100 transition-all cursor-pointer"
-                />
-              </div>
-
-              <div className="p-3 bg-amber-50 border border-amber-100 rounded-xl">
-                 <p className="text-xs text-amber-700 font-medium leading-relaxed">
-                   <strong>Note:</strong> You can only have one newsletter per Month/Year combination. If you need to replace an existing one, delete it from the list first.
-                 </p>
-              </div>
-
-              <button 
-                type="submit"
-                className="w-full py-4 rounded-xl bg-stone-900 text-stone-50 font-bold hover:bg-black transition-colors shadow-lg shadow-stone-200 flex items-center justify-center gap-2"
-              >
-                Upload to Archive
-              </button>
-            </form>
+            <UploadForm months={MONTHS} />
           </div>
         </div>
 
