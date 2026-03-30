@@ -13,22 +13,31 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/b
 interface PDFPageProps {
   pageNumber: number
   width: number
+  half: 'left' | 'right'
 }
 
 // react-pageflip natively requires forwarded Refs to inject the physical 3D CSS transform matrix
-const PDFPage = forwardRef<HTMLDivElement, PDFPageProps>(({ pageNumber, width }, ref) => {
+const PDFPage = forwardRef<HTMLDivElement, PDFPageProps>(({ pageNumber, width, half }, ref) => {
   return (
     <div 
       ref={ref} 
-      className="bg-white shadow-xl overflow-hidden flex justify-center items-center h-full w-full border-r border-stone-200"
+      className="bg-white shadow-xl overflow-hidden h-full w-full border-r border-stone-200 relative"
     >
-      <Page
-        pageNumber={pageNumber}
-        width={width}
-        renderTextLayer={false}
-        renderAnnotationLayer={false}
-        className="w-full h-full object-contain pointer-events-none"
-      />
+      <div 
+        className="absolute top-0 bottom-0 flex flex-col justify-center h-full"
+        style={{ 
+          width: width * 2, // The digital PDF spread is dynamically rendered exactly twice as wide as the book page
+          left: half === 'right' ? -width : 0 // Translates precisely 1 page-width left to expose the right-hand segment exclusively
+        }}
+      >
+        <Page
+          pageNumber={pageNumber}
+          width={width * 2} // Tells PDF.js worker to rasterize the spread at the full combined width
+          renderTextLayer={false}
+          renderAnnotationLayer={false}
+          className="w-full h-full object-contain pointer-events-none"
+        />
+      </div>
     </div>
   )
 })
@@ -116,13 +125,18 @@ export default function FlipbookViewer({ pdfUrl }: { pdfUrl: string }) {
                 usePortrait={isMobile} // Flips to single page mode automatically on narrow viewports
                 className="bg-transparent"
               >
-                {Array.from(new Array(numPages), (el, index) => (
-                  <PDFPage 
-                    key={`page_${index + 1}`} 
-                    pageNumber={index + 1} 
-                    width={PAGE_WIDTH} 
-                  />
-                ))}
+                {Array.from(new Array(numPages * 2), (el, index) => {
+                  const digitalPageNumber = Math.floor(index / 2) + 1;
+                  const half = index % 2 === 0 ? 'left' : 'right';
+                  return (
+                    <PDFPage 
+                      key={`page_${digitalPageNumber}_${half}`} 
+                      pageNumber={digitalPageNumber} 
+                      width={PAGE_WIDTH} 
+                      half={half}
+                    />
+                  )
+                })}
               </HTMLFlipBook>
             )}
           </Document>
