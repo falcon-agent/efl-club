@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import FlipbookViewer from './FlipbookViewer'
 
 const MONTHS = [
   { val: 1, name: 'January' }, { val: 2, name: 'February' }, 
@@ -70,12 +71,8 @@ export default function ClientViewer({ newsletters }: { newsletters: any[] }) {
               <span className="hidden sm:inline">Download PDF</span>
             </a>
           </div>
-          <div className="w-full flex-1 rounded-2xl overflow-hidden border border-stone-200 bg-stone-100 relative">
-            <iframe 
-              src={`${selectedNewsletter.pdf_url}#view=FitH`}
-              className="absolute inset-0 w-full h-full"
-              title={selectedNewsletter.title}
-            />
+          <div className="w-full relative mt-4">
+            <FlipbookViewer pdfUrl={selectedNewsletter.pdf_url} />
           </div>
         </div>
       )}
