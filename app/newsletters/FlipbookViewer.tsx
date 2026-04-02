@@ -24,10 +24,10 @@ const PDFPage = forwardRef<HTMLDivElement, PDFPageProps>(({ pageNumber, width, h
       className="bg-white shadow-xl overflow-hidden h-full w-full border-r border-stone-200 relative"
     >
       <div 
-        className="absolute top-0 bottom-0 flex flex-col justify-center h-full"
+        className="absolute top-0"
         style={{ 
-          width: width * 2, // The digital PDF spread is dynamically rendered exactly twice as wide as the book page
-          left: half === 'right' ? -width : 0 // Translates precisely 1 page-width left to expose the right-hand segment exclusively
+          width: width * 2,
+          left: half === 'right' ? -width : 0
         }}
       >
         <Page
@@ -49,8 +49,6 @@ export default function FlipbookViewer({ pdfUrl }: { pdfUrl: string }) {
   const [error, setError] = useState<string | null>(null)
   
   const [windowWidth, setWindowWidth] = useState(0)
-  const [pageRatio, setPageRatio] = useState<number>(1.294) // Default fallback vertical ratio
-
   const flipBookRef = useRef<any>(null)
 
   useEffect(() => {
@@ -60,22 +58,9 @@ export default function FlipbookViewer({ pdfUrl }: { pdfUrl: string }) {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  function onDocumentLoadSuccess(pdfProxy: any) {
-    setNumPages(pdfProxy.numPages)
-    
-    // Automatically read the exact PDF proportions from the File Buffer to eliminate scaling clipping
-    pdfProxy.getPage(1).then((page: any) => {
-      const viewport = page.getViewport({ scale: 1 })
-      // The viewport.width represents the FULL DOUBLE SPREAD.
-      // So the width of a single physical page inside our Flipbook is viewport.width / 2.
-      // Aspect ratio = Height / SinglePageWidth
-      const preciseRatio = viewport.height / (viewport.width / 2)
-      setPageRatio(preciseRatio)
-      setLoading(false)
-    }).catch((err: any) => {
-      console.warn("Failed to natively extract aspect ratio geometry, falling back to 8.5x11 mode.", err)
-      setLoading(false)
-    })
+  function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
+    setNumPages(numPages)
+    setLoading(false)
   }
 
   function onDocumentLoadError(err: Error) {
@@ -88,8 +73,12 @@ export default function FlipbookViewer({ pdfUrl }: { pdfUrl: string }) {
   // If viewport is small (<768px), render a single page at a time. Otherwise, render a 2-page spread.
   const isMobile = windowWidth > 0 && windowWidth < 768
 
-  // Calculate standard 8.5x11 vertical ratio widths automatically scaling down
+  // Calculate standard widths automatically scaling down
   const padding = isMobile ? 32 : 128
+  
+  // HARDCODED EFL NEWSLETTER DIMENSIONS
+  // Based on native Publisher export: 1008x612 spread -> single page is 504x612
+  const pageRatio = 612 / 504 // Exact aspect ratio height/width
   
   // The max width of the ENTIRE book
   const availableWidth = windowWidth - padding
