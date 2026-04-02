@@ -48,12 +48,19 @@ export default function FlipbookViewer({ pdfUrl }: { pdfUrl: string }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   
-  const [windowWidth, setWindowWidth] = useState(0)
+  const [containerWidth, setContainerWidth] = useState(0)
   const flipBookRef = useRef<any>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    setWindowWidth(window.innerWidth)
-    const handleResize = () => setWindowWidth(window.innerWidth)
+    const handleResize = () => {
+      if (containerRef.current) {
+        setContainerWidth(containerRef.current.clientWidth)
+      }
+    }
+    // Set initial size
+    handleResize()
+    
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])
@@ -71,26 +78,29 @@ export default function FlipbookViewer({ pdfUrl }: { pdfUrl: string }) {
 
   // Dynamic layout calculations
   // If viewport is small (<768px), render a single page at a time. Otherwise, render a 2-page spread.
-  const isMobile = windowWidth > 0 && windowWidth < 768
+  const isMobile = containerWidth > 0 && containerWidth < 768
 
   // Calculate standard widths automatically scaling down
-  const padding = isMobile ? 32 : 128
+  const padding = isMobile ? 16 : 80
   
   // HARDCODED EFL NEWSLETTER DIMENSIONS
   // Based on native Publisher export: 1008x612 spread -> single page is 504x612
   const pageRatio = 612 / 504 // Exact aspect ratio height/width
   
-  // The max width of the ENTIRE book
-  const availableWidth = windowWidth - padding
+  // The max width of the ENTIRE book accurately constrained strictly to the physical DOM parent container
+  const availableWidth = containerWidth - padding
   
-  // In single page mode, bookWidth = pageWidth. In dual page mode, bookWidth = 2 * pageWidth
-  const PAGE_WIDTH = isMobile ? availableWidth : Math.min(availableWidth / 2, 500)
+  // In single page mode, bookWidth = availableWidth. In dual page mode, bookWidth = availableWidth / 2
+  const PAGE_WIDTH = isMobile ? availableWidth : availableWidth / 2
   const PAGE_HEIGHT = PAGE_WIDTH * pageRatio
 
-  if (windowWidth === 0) return null // Prevent hydration mismatches
+  if (containerWidth === 0) return null // Prevent hydration mismatches
 
   return (
-    <div className="w-full flex flex-col items-center justify-center min-h-[600px] relative bg-stone-100/50 rounded-3xl p-4 sm:p-12 mb-20 overflow-hidden">
+    <div 
+      ref={containerRef}
+      className="w-full flex flex-col items-center justify-center min-h-[600px] relative bg-stone-100/50 rounded-3xl p-4 sm:p-12 mb-20 overflow-hidden"
+    >
       
       {loading && !error && (
         <div className="absolute inset-0 z-10 bg-stone-50/80 backdrop-blur-sm flex flex-col justify-center items-center rounded-3xl">
