@@ -120,7 +120,7 @@ export default function FlipbookViewer({ pdfUrl }: { pdfUrl: string }) {
                 minHeight={400}
                 maxHeight={800}
                 maxShadowOpacity={0.5}
-                showCover={true}
+                showCover={false}
                 mobileScrollSupport={true}
                 usePortrait={isMobile} // Flips to single page mode automatically on narrow viewports
                 className="bg-transparent"
