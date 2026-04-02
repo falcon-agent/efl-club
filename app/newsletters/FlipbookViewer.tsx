@@ -35,7 +35,7 @@ const PDFPage = forwardRef<HTMLDivElement, PDFPageProps>(({ pageNumber, width, h
           width={width * 2} // Tells PDF.js worker to rasterize the spread at the full combined width
           renderTextLayer={false}
           renderAnnotationLayer={false}
-          className="w-full h-full object-contain pointer-events-none"
+          className="pointer-events-none"
         />
       </div>
     </div>
@@ -49,6 +49,8 @@ export default function FlipbookViewer({ pdfUrl }: { pdfUrl: string }) {
   const [error, setError] = useState<string | null>(null)
   
   const [windowWidth, setWindowWidth] = useState(0)
+  const [pageRatio, setPageRatio] = useState<number>(1.294) // Default fallback vertical ratio
+
   const flipBookRef = useRef<any>(null)
 
   useEffect(() => {
@@ -58,9 +60,22 @@ export default function FlipbookViewer({ pdfUrl }: { pdfUrl: string }) {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
-    setNumPages(numPages)
-    setLoading(false)
+  function onDocumentLoadSuccess(pdfProxy: any) {
+    setNumPages(pdfProxy.numPages)
+    
+    // Automatically read the exact PDF proportions from the File Buffer to eliminate scaling clipping
+    pdfProxy.getPage(1).then((page: any) => {
+      const viewport = page.getViewport({ scale: 1 })
+      // The viewport.width represents the FULL DOUBLE SPREAD.
+      // So the width of a single physical page inside our Flipbook is viewport.width / 2.
+      // Aspect ratio = Height / SinglePageWidth
+      const preciseRatio = viewport.height / (viewport.width / 2)
+      setPageRatio(preciseRatio)
+      setLoading(false)
+    }).catch((err: any) => {
+      console.warn("Failed to natively extract aspect ratio geometry, falling back to 8.5x11 mode.", err)
+      setLoading(false)
+    })
   }
 
   function onDocumentLoadError(err: Error) {
@@ -74,7 +89,6 @@ export default function FlipbookViewer({ pdfUrl }: { pdfUrl: string }) {
   const isMobile = windowWidth > 0 && windowWidth < 768
 
   // Calculate standard 8.5x11 vertical ratio widths automatically scaling down
-  const pageRatio = 1.294
   const padding = isMobile ? 32 : 128
   
   // The max width of the ENTIRE book
