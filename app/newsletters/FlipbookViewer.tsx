@@ -94,15 +94,13 @@ export default function FlipbookViewer({ pdfUrl }: { pdfUrl: string }) {
   const PAGE_WIDTH = isMobile ? availableWidth : availableWidth / 2
   const PAGE_HEIGHT = PAGE_WIDTH * pageRatio
 
-  if (containerWidth === 0) return null // Prevent hydration mismatches
-
   return (
     <div 
       ref={containerRef}
       className="w-full flex flex-col items-center justify-center min-h-[600px] relative bg-stone-100/50 rounded-3xl p-4 sm:p-12 mb-20 overflow-hidden"
     >
       
-      {loading && !error && (
+      {(loading || containerWidth === 0) && !error && (
         <div className="absolute inset-0 z-10 bg-stone-50/80 backdrop-blur-sm flex flex-col justify-center items-center rounded-3xl">
            <Loader2 className="w-10 h-10 text-sky-600 animate-spin mb-4" />
            <p className="text-stone-600 font-bold tracking-tight animate-pulse">Rendering Magazine Physics...</p>
@@ -115,10 +113,11 @@ export default function FlipbookViewer({ pdfUrl }: { pdfUrl: string }) {
         </div>
       ) : (
         <div className="relative w-full flex justify-center py-4">
-          <Document 
-             file={pdfUrl} 
-             onLoadSuccess={onDocumentLoadSuccess} 
-             onLoadError={onDocumentLoadError}
+          {containerWidth > 0 && (
+            <Document 
+               file={pdfUrl} 
+               onLoadSuccess={onDocumentLoadSuccess} 
+               onLoadError={onDocumentLoadError}
              className="flex justify-center shadow-2xl rounded-sm"
           >
             {numPages > 0 && (
@@ -153,6 +152,7 @@ export default function FlipbookViewer({ pdfUrl }: { pdfUrl: string }) {
               </HTMLFlipBook>
             )}
           </Document>
+          )}
 
           {/* Desktop Navigation Overlays */}
           {!isMobile && numPages > 0 && (
