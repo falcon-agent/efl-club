@@ -55,15 +55,27 @@ export default async function AdminEventsPage() {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-bold text-stone-700 mb-1">Ticket Price ($) Optional</label>
-                <input 
-                  type="number" 
-                  name="price" 
-                  step="0.01"
-                  placeholder="e.g. 15.00"
-                  className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition-all"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-stone-700 mb-1">Member Price ($)</label>
+                  <input 
+                    type="number" 
+                    name="price_member" 
+                    step="0.01"
+                    placeholder="e.g. 10.00"
+                    className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-stone-700 mb-1">Guest Price ($)</label>
+                  <input 
+                    type="number" 
+                    name="price_non_member" 
+                    step="0.01"
+                    placeholder="e.g. 15.00"
+                    className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition-all"
+                  />
+                </div>
               </div>
 
               <div>
@@ -120,11 +132,20 @@ export default async function AdminEventsPage() {
                   <div>
                     <div className="flex justify-between items-start mb-2">
                       <h4 className="text-xl font-extrabold text-stone-900 truncate pr-4">{event.title}</h4>
-                      {event.price > 0 ? (
-                        <span className="bg-stone-100 text-stone-800 text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap">${event.price}</span>
-                      ) : (
-                        <span className="bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap">Free</span>
-                      )}
+                      <div className="flex flex-col items-end">
+                        <div className="flex gap-2">
+                          {event.price_member > 0 ? (
+                            <span className="bg-sky-50 text-sky-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-sky-100 uppercase tracking-tight">Member: ${event.price_member}</span>
+                          ) : (
+                            <span className="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-100 uppercase tracking-tight">Member: Free</span>
+                          )}
+                          {event.price_non_member > 0 ? (
+                            <span className="bg-stone-50 text-stone-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-stone-100 uppercase tracking-tight">Guest: ${event.price_non_member}</span>
+                          ) : (
+                            <span className="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-100 uppercase tracking-tight">Guest: Free</span>
+                          )}
+                        </div>
+                      </div>
                     </div>
                     <p className="text-sky-600 font-bold text-sm mb-3">
                       {new Date(event.date).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}

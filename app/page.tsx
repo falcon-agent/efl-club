@@ -32,13 +32,19 @@ export default function Home() {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            <Link href="/events" className="inline-flex h-12 sm:w-auto w-full items-center justify-center rounded-xl bg-sky-600 px-8 text-sm font-bold text-white shadow-xl transition-all hover:bg-sky-700 hover:-translate-y-1">
+            <Link href="/events" className="inline-flex h-12 sm:w-72 lg:w-auto items-center justify-center rounded-xl bg-sky-600 px-8 text-sm font-bold text-white shadow-xl transition-all hover:bg-sky-700 hover:-translate-y-1">
               View Upcoming Events
             </Link>
             <Link href="/signup" className="inline-flex h-12 sm:w-auto w-full items-center justify-center rounded-xl border-2 border-transparent bg-white/90 backdrop-blur px-8 text-sm font-bold text-stone-900 shadow-xl transition-all hover:bg-white hover:-translate-y-1">
               Join the Portal
             </Link>
+            <Link href="/newsletters" className="inline-flex h-12 sm:w-auto w-full items-center justify-center rounded-xl border-2 border-stone-200 bg-white/50 backdrop-blur-sm px-8 text-sm font-bold text-stone-700 shadow-lg transition-all hover:bg-white/80 hover:-translate-y-1 sm:hidden">
+              View Latest Newsletter
+            </Link>
           </div>
+          <Link href="/newsletters" className="mt-4 hidden sm:inline-flex h-12 items-center justify-center rounded-xl border-2 border-stone-200 bg-white/50 backdrop-blur-sm px-8 text-sm font-bold text-stone-700 shadow-lg transition-all hover:bg-white/80 hover:-translate-y-1">
+              View Latest Newsletter
+          </Link>
         </div>
       </section>
 

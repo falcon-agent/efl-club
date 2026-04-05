@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import { rsvpForEvent } from '@/app/actions/events'
 import Image from 'next/image'
 import Link from 'next/link'
+import GuestRSVPForm from './GuestRSVPForm'
 
 export default async function EventsHub() {
   const supabase = await createClient()
@@ -52,7 +53,7 @@ export default async function EventsHub() {
             <div key={event.id} className="group relative flex flex-col bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-100 dark:border-zinc-800 shadow-sm overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1">
               {event.image_url ? (
                 <div className="aspect-[4/3] w-full bg-zinc-100 dark:bg-zinc-800 relative">
-                  <Image src={event.image_url} alt={event.title} fill className="object-cover" />
+                  <Image src={event.image_url} alt={event.title} fill className="object-cover" unoptimized />
                 </div>
               ) : (
                 <div className="aspect-[4/3] w-full bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-zinc-900 flex items-center justify-center border-b border-zinc-100 dark:border-zinc-800">
@@ -62,9 +63,14 @@ export default async function EventsHub() {
               <div className="p-8 flex-1 flex flex-col">
                 <div className="flex justify-between items-start mb-4">
                   <h3 className="font-bold text-xl text-zinc-900 dark:text-zinc-100 leading-tight pr-4">{event.title}</h3>
-                  <span className="inline-flex items-center rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 px-3 py-1 text-sm font-bold border border-emerald-100 dark:border-emerald-800/50 whitespace-nowrap">
-                    {event.price && Number(event.price) > 0 ? `$${Number(event.price).toFixed(2)}` : 'Free'}
-                  </span>
+                  <div className="flex flex-col items-end gap-1">
+                    <span className="inline-flex items-center rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 px-3 py-1 text-xs font-bold border border-emerald-100 dark:border-emerald-800/50 whitespace-nowrap">
+                      Member: {event.price_member && Number(event.price_member) > 0 ? `$${Number(event.price_member).toFixed(2)}` : 'Free'}
+                    </span>
+                    <span className="inline-flex items-center rounded-lg bg-zinc-100 text-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-400 px-3 py-1 text-xs font-bold border border-zinc-200 dark:border-zinc-700/50 whitespace-nowrap">
+                      Guest: {event.price_non_member && Number(event.price_non_member) > 0 ? `$${Number(event.price_non_member).toFixed(2)}` : 'Free'}
+                    </span>
+                  </div>
                 </div>
                 <p className="text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed flex-1">{event.description}</p>
                 <div className="mt-auto mb-8 bg-zinc-50 dark:bg-zinc-950 p-4 rounded-2xl border border-zinc-100 dark:border-zinc-800">
@@ -77,16 +83,19 @@ export default async function EventsHub() {
                 </div>
                 
                 {isRSVPd(event.id) ? (
-                  <Link href={`/events/payment-instructions?eventId=${event.id}`} className="w-full inline-flex justify-center items-center rounded-xl bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 px-4 py-3.5 text-sm font-bold transition-all hover:bg-zinc-200 dark:hover:bg-zinc-700">
-                    View Payment Details
+                  <Link href={`/events/payment-instructions?eventId=${event.id}`} className="w-full inline-flex justify-center items-center rounded-xl bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400 border border-green-100 dark:border-green-800/30 px-4 py-3.5 text-sm font-bold transition-all hover:bg-green-100 dark:hover:bg-green-900/30">
+                    <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                    RSVP Confirmed
                   </Link>
-                ) : (
+                ) : user ? (
                   <form action={rsvpForEvent} className="w-full">
                     <input type="hidden" name="eventId" value={event.id} />
-                    <button type="submit" disabled={!user} className="w-full inline-flex justify-center items-center rounded-xl bg-blue-600 text-white dark:bg-blue-500 dark:text-zinc-950 px-4 py-3.5 text-sm font-bold shadow-md transition-all hover:bg-blue-700 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
-                      {user ? 'RSVP Now' : 'Sign in to RSVP'}
+                    <button type="submit" className="w-full inline-flex justify-center items-center rounded-xl bg-blue-600 text-white dark:bg-blue-500 dark:text-zinc-950 px-4 py-3.5 text-sm font-bold shadow-md transition-all hover:bg-blue-700 hover:shadow-lg">
+                      RSVP Now
                     </button>
                   </form>
+                ) : (
+                  <GuestRSVPForm eventId={event.id} />
                 )}
               </div>
             </div>

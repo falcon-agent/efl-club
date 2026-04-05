@@ -28,8 +28,8 @@ export default async function SiteHeader() {
         </Link>
         <nav className="flex items-center gap-6 text-sm font-bold text-stone-500">
           <Link href="/events" className="transition-colors hover:text-sky-600">Events</Link>
-          <Link href="/volunteer" className="transition-colors hover:text-sky-600 hidden sm:inline-block">Volunteer</Link>
-          <Link href="/newsletters" className="transition-colors hover:text-sky-600 hidden md:inline-block">Newsletters</Link>
+          <Link href="/volunteer" className="transition-colors hover:text-sky-600">Volunteer</Link>
+          <Link href="/newsletters" className="transition-colors hover:text-sky-600">Newsletters</Link>
           {user && (
             <>
               {isAdmin && (

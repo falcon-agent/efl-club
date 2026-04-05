@@ -37,7 +37,8 @@ export async function createEvent(formData: FormData) {
   const title = formData.get('title') as string
   const description = formData.get('description') as string
   const dateStr = formData.get('date') as string
-  const price = formData.get('price') as string
+  const priceMember = formData.get('price_member') as string
+  const priceNonMember = formData.get('price_non_member') as string
   const file = formData.get('flyer') as File | null
 
   if (!title || !dateStr) {
@@ -72,7 +73,8 @@ export async function createEvent(formData: FormData) {
     title,
     description,
     date: new Date(dateStr).toISOString(),
-    price: price ? parseFloat(price) : 0,
+    price_member: priceMember ? parseFloat(priceMember) : 0,
+    price_non_member: priceNonMember ? parseFloat(priceNonMember) : 0,
     image_url: imageUrl
   })
 
